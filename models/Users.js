@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
         required:true,
         trim:true,
     },
+    role:{
+        type:String,
+        default:"Client",
+        enum:["Admin","Client"]
+    },
     city:{
         type:String,
         required:true,

@@ -2,6 +2,7 @@ const User = require("../models/Users")
 const otpGenerator = require("otp-generator")
 const OTP = require("../models/OTP")
 const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 
 exports.sendOtp = async(req,res)=>{
     try{
@@ -120,12 +121,53 @@ exports.signUp = async(req,res)=>{
 exports.login = async(req,res)=>{
     try{
         // fetch all the details from req.body
+        const {email,password} = req.body
         // validate all
+        if(!email || !password){
+            return res.status(401).json({
+                success:false,
+                message:"Please fill all the details correctly"
+            })
+        }
         // check user has already registered
+        const user = await User.findOne(email)
+        if(!user){
+            return res.status(401).json({
+                success:false,
+                message:"user don't exist please register first"
+            })
+        }
         // password matching
+        if(!await bcrypt.compare(password,user.password)){
+            return res.status(401).json({
+                success:false,
+                message:"Incorrect password "
+            })
+        }
         // generate the token
-        // place the token in req.user
+        const payload={
+            email:user.email,
+            id:user._id,
+            role:user.role,
+
+        }
+        const token =jwt.sign(payload,process.env.JWT_SECRET,{
+            expiresIn:"2h"
+        })
+        // place the token in req.user and user .password = undefined
+        user.password=undefined;
+        
         // place the token in cookie and send response
+        const options = {
+            expires:new Date(Date.now()+3*24*60*60*1000),
+            httpOnly:true,
+        }
+        res.cookie("Token",token,options).status(200).json({
+            success:true,
+            token,
+            user,
+            message:"Logged in Successfully"
+        })
 
     }catch(err){
         console.log("error in login",err);
