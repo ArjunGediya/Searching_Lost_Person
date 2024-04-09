@@ -31,7 +31,6 @@ const complaintDetailsSchema = new mongoose.Schema({
     },
     addtionalDetails:{
         type:String,
-        required:true,
     },
     createdAt:{
         type:Date,
