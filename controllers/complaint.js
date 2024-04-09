@@ -17,7 +17,7 @@ exports.complaints = async(req,res)=>{
         // fetch the image
         const imagefile = req.files.image
         // validate all
-        if(!name || !age || !gender || !physicalDescription || !lastSeenLocation || !contactNumber ){
+        if(!name || !age || !gender || !physicalDescription || !lastSeenLocation || !contactNumber || !imagefile ){
             return res.status(401).json({
                 successs:false,
                 message:"Please fillup the required details and the filename must not contain special character"
