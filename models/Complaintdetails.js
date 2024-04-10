@@ -33,8 +33,8 @@ const complaintDetailsSchema = new mongoose.Schema({
         type:String,
     },
     createdAt:{
-        type:Date,
-        default:Date.now()
+        type:String,
+        default:Date.now().toLocaleString('en-IN'),
     },
     userId:{
         type:mongoose.Schema.Types.ObjectId,

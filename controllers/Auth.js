@@ -177,3 +177,21 @@ exports.login = async(req,res)=>{
         })
     }
 }
+exports.logout = async(req,res)=>{
+    try{
+        // remove the token from header authorisaton
+        req.headers.authorisation =''
+        // reset the cookie and send response
+        res.clearcookie('token').status(200).json({
+            success:true,
+            message:"Logout Successfully"
+        })
+    }catch(err){
+        console.log("error while loging out");
+        console.error(err)
+        return res.status(500).json({
+            success:false,
+            message:"Internal serrver error,Please try again"
+        })
+    }
+}
