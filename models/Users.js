@@ -48,12 +48,12 @@ const userSchema = new mongoose.Schema({
         trim:true,
     },
     createdAt:{
-        type:Date(),
+        type:String,
         default:Date.now(),
     },
-    complaintId:[{
+    Complaints:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"Complaints"
+        ref:"Complaints",
     }],
     // for reset password
     resetToken:{

@@ -25,6 +25,10 @@ const complaintDetailsSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    district:{
+        type:String,
+        required:true
+    },
     contactNumber:{
         type:String,
         required:true,
@@ -36,7 +40,7 @@ const complaintDetailsSchema = new mongoose.Schema({
         type:String,
         default:Date.now().toLocaleString('en-IN'),
     },
-    userId:{
+    Users:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Users",
         required:true,

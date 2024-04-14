@@ -1,23 +1,24 @@
 const cloudinary = require("cloudinary").v2
 const User = require("../models/Users")
-const Complaints = require("../models/Complaintdetails")
-exports.complaints = async(req,res)=>{
+const Complaints = require("../models/Complaints")
+exports.complaint = async(req,res)=>{
     try{
         // fetch the user details from decoded token
-        const {userID} = req.user
+        const userID = req.user.id
         console.log(userID);
         // fetch the required fields from req.body
         const {name,
             age,
             gender,
+            district,
             physicalDescription,
             lastSeenLocation,
-            contactNumber,
             addtionalDetails} = req.body
         // fetch the image
         const imagefile = req.files.image
         // validate all
-        if(!name || !age || !gender || !physicalDescription || !lastSeenLocation || !contactNumber || !imagefile ){
+        console.log(name   ,  age,  gender,  district,physicalDescription , lastSeenLocation ,  imagefile);
+        if(!name || !age || !gender || !district || !physicalDescription || !lastSeenLocation  || !imagefile ){
             return res.status(401).json({
                 successs:false,
                 message:"Please fillup the required details and the filename must not contain special character"
@@ -25,7 +26,7 @@ exports.complaints = async(req,res)=>{
         }
         //check the filetype
         const supportedTypes =["png","jpeg","jpg"]
-        const fileType = `${imagefile.name.split(".")[1].toLowercase()}`
+        const fileType = `${imagefile.name.split(".")[1].toLowerCase()}`
         // if filetype matches entry in cloudinary
         if(!supportedTypes.includes(fileType)){
             return res.status(401).json({
@@ -42,21 +43,27 @@ exports.complaints = async(req,res)=>{
         const cloudinaryImageUploadResponse = await cloudinary.uploader.upload(tempFilePath,options)
         const link = cloudinaryImageUploadResponse.secure_url
         console.log("link of the image ---> ",link);
+
+        // user 
+        const user = await User.findById(userID)
+
         // entry in complaint collection
         const newComplaint = new Complaints({
             image:link,
             name,
             age,
             gender,
+            district,
             physicalDescription,
             lastSeenLocation,
-            contactNumber,
+            contactNumber:user.contactNumber,
             addtionalDetails,
-            userId
+            Users:userID
         })
-        const savedComplaint = newComplaint.save()
+        
+        const savedComplaint = await newComplaint.save()
         // update the user
-        const updatedUser = await User.findByIdAndUpdate(userID,{$push:{complaintId:(await savedComplaint)._id}},{new:true}).populate("Complaints").exec();
+        const updatedUser = await User.findByIdAndUpdate(userID,{$push:{Complaints:savedComplaint._id}},{new:true}).populate("Complaints").exec();
         // send response
         res.status(200).json({
             success:true,
@@ -65,7 +72,7 @@ exports.complaints = async(req,res)=>{
         })
     }
     catch(err){
-        console.log("error registering rh complaints")
+        console.log("error registering the complaints")
         console.log(err)
         return res.status(500).json({
             success:false,

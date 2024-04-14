@@ -64,9 +64,9 @@ exports.signUp = async(req,res)=>{
             state,
             gender,
             password,
-            confirmPassword} =req.body
+            confirmPassword,otp} =req.body
         // validate
-        if(!name || !contactNumber || !email || !city || !district || !state || !gender || !password ||!confirmPassword){
+        if(!name || !contactNumber || !email || !city || !district || !state || !gender || !password || !confirmPassword || !otp){
             console.log("fill up all the fields for signup");
             return res.status(401).json({
                 success:false,
@@ -82,16 +82,17 @@ exports.signUp = async(req,res)=>{
             })
         }
         // wheather user already exist
-        const existingUser = await User.findOne(email)
+        const existingUser = await User.findOne({email})
         // most recent otp matches the otp from req body
-        const recentOtp = await OTP.find(email).sort({createdAt:-1}).limit(1);
+        const recentOtp = await OTP.find({email}).sort({createdAt:-1}).limit(1);
+        console.log(recentOtp[0].otp);
         if(recentOtp.length==0){
             return res.status(500).json({
                 succes:false,
                 message:"otp not found,regenarate OTP"
             })
         }
-        else if(recentOtp[0]!=otp){
+        else if(recentOtp[0].otp!=otp){
             return res.status(401).json({
                 success:false,
                 message:"Invalid Otp "
@@ -130,7 +131,7 @@ exports.login = async(req,res)=>{
             })
         }
         // check user has already registered
-        const user = await User.findOne(email)
+        const user = await User.findOne({email})
         if(!user){
             return res.status(401).json({
                 success:false,
@@ -162,7 +163,7 @@ exports.login = async(req,res)=>{
             expires:new Date(Date.now()+3*24*60*60*1000),
             httpOnly:true,
         }
-        res.cookie("Token",token,options).status(200).json({
+        return res.cookie("token",token,options).status(200).json({
             success:true,
             token,
             user,
@@ -177,12 +178,39 @@ exports.login = async(req,res)=>{
         })
     }
 }
+exports.getCurrentUser = async(req,res)=>{
+    try{
+        const userID = req.user.id
+        console.log(userID);
+
+        const user = await User.findById(userID)
+        user.password=undefined
+        if(!user){
+            return res.status(404).json({
+                success:false,
+                message:"user not found"
+            })
+        }
+        return res.status(200).json({
+            success:true,
+            user,
+            message:"user get successfully"
+        })
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({
+            success:false,
+            error:err.message,
+            message:"Internal Server Error,Please try again after sometime"
+        })
+    }
+}
 exports.logout = async(req,res)=>{
     try{
         // remove the token from header authorisaton
         req.headers.authorisation =''
         // reset the cookie and send response
-        res.clearcookie('token').status(200).json({
+        res.clearCookie('token').status(200).json({
             success:true,
             message:"Logout Successfully"
         })

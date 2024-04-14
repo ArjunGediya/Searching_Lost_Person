@@ -1,10 +1,12 @@
 const jwt = require("jsonwebtoken")
 require("dotenv").config()
 
-exports.auth = async(req,res)=>{
+exports.auth = async(req,res,next)=>{
     try{
         // fetch the details from cookie or authorisation
-        const token = req.cookie || req.header("Authorisation").replace("bearer","")
+        console.log(req.cookies.token);
+        const token = req.cookies.token  || req.header("Authorisation").replace("bearer","")
+        
         // validate
         if(!token){
             return res.status(401).json({
@@ -23,50 +25,12 @@ exports.auth = async(req,res)=>{
                 message:"invalid token"
             })
         }
-        next();
+        next()
     }catch(err){
         console.log("error in authorisation  ",err);
         return res.status(500).json({
             success:false,
             message:"Internal Server Error,Please try again after some time"
-        })
-    }
-}
-
-
-// isAdmin
-exports.isAdmin = async(req,res)=>{
-    try{
-        const role = req.user.role;
-        if(role!=="Admin"){
-            return res.status(401).json({
-                success:false,
-                message:"This is the protected route for admin only"
-            })
-        }
-    }catch(err){
-        console.log(err);
-        res.status(500).json({
-            success:false,
-            message:"User role can't be verified ,Please try again"
-        })
-    }
-}
-
-// isClient
-exports.isClient = async(req,res)=>{
-    try{
-        const role = req.user.role;
-        if(role!=="Client"){
-            return res.status(401).json({
-                message:"This is the protected route for Clients"
-            })
-        }
-    }catch(err){
-        console.log(err);
-        res.status(500).json({
-            success:false,
-            message:"User role can't be verified ,Please try again"
         })
     }
 }
