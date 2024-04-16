@@ -5,7 +5,7 @@ exports.auth = async(req,res,next)=>{
     try{
         // fetch the details from cookie or authorisation
         console.log(req.cookies.token);
-        const token = req.cookies.token  || req.header("Authorisation").replace("bearer","")
+        const token = req.cookies.token || req.body.token  || req.header("Authorisation").replace("Bearer ","")
         
         // validate
         if(!token){

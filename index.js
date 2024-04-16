@@ -8,7 +8,10 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 const routes = require("./routes/routes")
 
-app.use(cors())
+app.use(cors({
+  origin: true, // Replace this with the origin of your frontend
+  credentials: true
+}));
 app.use(express.json())
 
 app.use(cookieParser());
@@ -28,6 +31,7 @@ dbconnect();
 cloudinaryconnet();
 // mount
 app.use("/api/v1/SearchLostPerson",routes)
+app.get("/api/v1/SearchLostPerson/",)
 
 
 app.listen(PORT,()=>{

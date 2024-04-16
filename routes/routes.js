@@ -2,15 +2,14 @@ const express = require("express");
 const router = express.Router();
 
 
-const {sendOtp,signUp,login,getCurrentUser,logout} = require("../controllers/Auth")
+const {signUp,login,getCurrentUser,logout} = require("../controllers/Auth")
 const {complaint} = require("../controllers/complaint")
 const {deleteComplaint} = require("../controllers/deleteComplaints")
 const {complaintsonLocation} = require("../controllers/complaintsonLocation")
 const {getallcomplaints} = require("../controllers/getallcomplaints")
 const {auth} = require("../middlewares/auth")
 
-// for sending the otp
-router.post("/sendotp",sendOtp)
+
 // for login 
 router.post("/login",login)
 //for signup
